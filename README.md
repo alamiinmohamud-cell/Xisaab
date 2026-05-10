@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="so">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<meta name="theme-color" content="#0f3460"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="Xisaab"/>
+<title>Xisaab — Maamul Lacagta</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #f0f4f8;
+    --card: #ffffff;
+    --dark: #1a1a2e;
+    --blue: #0f3460;
+    --green: #2ecc71;
+    --red: #e74c3c;
+    --orange: #f39c12;
+    --purple: #8e44ad;
+    --gray: #888;
+    --border: #e8edf2;
+    --shadow: 0 2px 10px rgba(0,0,0,0.07);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body { font-family: 'Tajawal', sans-serif; background: var(--bg); color: var(--dark); min-height: 100vh; max-width: 480px; margin: 0 auto; }
+
+  /* HEADER */
+  .header { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 60%, #0f3460 100%); color: #fff; padding: 20px 16px 0; }
+  .header-top { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+  .logo { font-size: 28px; }
+  .app-title { font-size: 22px; font-weight: 800; letter-spacing: 1px; }
+  .app-sub { font-size: 11px; opacity: 0.55; margin-left: auto; }
+  .balance-card { background: rgba(255,255,255,0.09); border-radius: 16px 16px 0 0; padding: 16px; backdrop-filter: blur(10px); }
+  .bal-label { font-size: 11px; opacity: 0.65; margin-bottom: 4px; }
+  .bal-amount { font-size: 34px; font-weight: 800; margin-bottom: 8px; transition: color 0.3s; }
+  .bal-row { display: flex; gap: 24px; }
+  .bal-sub { font-size: 13px; opacity: 0.85; }
+
+  /* TABS */
+  .tab-bar { background: var(--card); display: flex; border-bottom: 2px solid var(--border); overflow-x: auto; position: sticky; top: 0; z-index: 10; scrollbar-width: none; }
+  .tab-bar::-webkit-scrollbar { display: none; }
+  .tab { flex: 0 0 auto; padding: 11px 13px; border: none; background: none; font-size: 12px; color: var(--gray); cursor: pointer; font-weight: 700; white-space: nowrap; font-family: 'Tajawal', sans-serif; border-bottom: 2px solid transparent; margin-bottom: -2px; transition: color 0.2s; }
+  .tab.active { color: var(--blue); border-bottom-color: var(--blue); }
+
+  /* CONTENT */
+  .content { padding: 16px; }
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* CARDS GRID */
+  .card-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+  .stat-card { background: var(--card); border-radius: 14px; padding: 14px; cursor: pointer; box-shadow: var(--shadow); border-top: 3px solid transparent; transition: transform 0.15s; }
+  .stat-card:active { transform: scale(0.97); }
+  .stat-icon { font-size: 22px; margin-bottom: 4px; }
+  .stat-label { font-size: 11px; color: var(--gray); margin-bottom: 2px; }
+  .stat-value { font-size: 15px; font-weight: 800; }
+
+  /* SECTION TITLE */
+  .section-title { font-size: 12px; font-weight: 800; color: #666; margin-bottom: 10px; margin-top: 6px; text-transform: uppercase; letter-spacing: 0.7px; }
+
+  /* LIST */
+  .list-item { background: var(--card); border-radius: 12px; padding: 12px 14px; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; box-shadow: var(--shadow); border-left: 4px solid transparent; animation: slideIn 0.2s ease; }
+  @keyframes slideIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  .list-icon { font-size: 20px; flex-shrink: 0; }
+  .list-info { flex: 1; min-width: 0; }
+  .list-title { font-size: 14px; font-weight: 700; color: var(--dark); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .list-date { font-size: 11px; color: #aaa; margin-top: 2px; }
+  .list-amount { font-size: 15px; font-weight: 800; text-align: right; flex-shrink: 0; }
+  .del-btn { background: none; border: none; cursor: pointer; font-size: 16px; padding: 4px; opacity: 0.4; flex-shrink: 0; }
+  .del-btn:hover { opacity: 0.9; }
+  .empty { text-align: center; color: #bbb; padding: 50px 0 30px; font-size: 14px; }
+  .empty-icon { font-size: 40px; margin-bottom: 10px; }
+
+  /* ADD BUTTON */
+  .add-btn { width: 100%; padding: 14px; background: var(--blue); color: #fff; border: none; border-radius: 13px; font-size: 15px; font-weight: 800; cursor: pointer; margin-bottom: 12px; font-family: 'Tajawal', sans-serif; transition: opacity 0.2s; }
+  .add-btn:active { opacity: 0.85; }
+  .add-btn.red { background: var(--red); }
+  .add-btn.purple { background: var(--purple); }
+
+  /* TOTAL BADGE */
+  .total-badge { padding: 9px 14px; border-radius: 9px; font-size: 13px; font-weight: 800; margin-bottom: 12px; }
+  .total-badge.green { background: #eafaf1; color: var(--green); }
+  .total-badge.red { background: #fdecea; color: var(--red); }
+
+  /* DAD STATS */
+  .dad-stats { background: var(--card); border-radius: 12px; padding: 12px 14px; margin-bottom: 12px; box-shadow: var(--shadow); }
+  .dad-stat { font-size: 13px; margin-bottom: 4px; font-weight: 700; }
+  .dad-stat:last-child { margin-bottom: 0; }
+
+  /* STATUS BTN */
+  .status-btn { border: none; color: #fff; border-radius: 7px; padding: 5px 11px; font-size: 11px; font-weight: 800; cursor: pointer; margin-top: 4px; font-family: 'Tajawal', sans-serif; transition: opacity 0.2s; }
+  .status-btn:active { opacity: 0.8; }
+
+  /* REPORT */
+  .report-card { background: var(--card); border-radius: 13px; padding: 16px; margin-bottom: 16px; box-shadow: var(--shadow); }
+  .report-row { display: flex; justify-content: space-between; align-items: center; padding: 9px 0; font-size: 14px; border-bottom: 1px solid #f5f5f5; }
+  .report-row:last-child { border-bottom: none; }
+  .report-row.bold { font-weight: 800; font-size: 15px; }
+  .divider { height: 1px; background: #ddd; margin: 6px 0; }
+
+  /* MODAL */
+  .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.55); display: flex; align-items: flex-end; justify-content: center; z-index: 100; opacity: 0; pointer-events: none; transition: opacity 0.25s; }
+  .overlay.show { opacity: 1; pointer-events: all; }
+  .modal-box { background: #fff; border-radius: 22px 22px 0 0; padding: 24px 20px; width: 100%; max-width: 480px; transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.34,1.2,0.64,1); }
+  .overlay.show .modal-box { transform: translateY(0); }
+  .modal-title { margin-bottom: 18px; font-size: 19px; font-weight: 800; color: var(--dark); }
+  .modal-handle { width: 40px; height: 4px; background: #ddd; border-radius: 2px; margin: 0 auto 18px; }
+  .input { width: 100%; padding: 13px 14px; border: 2px solid var(--border); border-radius: 11px; font-size: 15px; margin-bottom: 11px; outline: none; font-family: 'Tajawal', sans-serif; transition: border-color 0.2s; }
+  .input:focus { border-color: var(--blue); }
+  .modal-btns { display: flex; gap: 10px; margin-top: 4px; }
+  .cancel-btn { flex: 1; padding: 13px; border: 2px solid var(--border); border-radius: 11px; background: #fff; font-size: 14px; font-weight: 800; cursor: pointer; font-family: 'Tajawal', sans-serif; }
+  .save-btn { flex: 2; padding: 13px; background: var(--blue); color: #fff; border: none; border-radius: 11px; font-size: 14px; font-weight: 800; cursor: pointer; font-family: 'Tajawal', sans-serif; }
+  .save-btn.red { background: var(--red); }
+  .save-btn.purple { background: var(--purple); }
+
+  /* TOAST */
+  .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); color: #fff; padding: 12px 24px; border-radius: 30px; font-weight: 800; font-size: 14px; z-index: 200; box-shadow: 0 4px 20px rgba(0,0,0,0.2); transition: transform 0.3s cubic-bezier(0.34,1.2,0.64,1); white-space: nowrap; font-family: 'Tajawal', sans-serif; }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* INSTALL BANNER */
+  .install-banner { background: linear-gradient(135deg, #0f3460, #16213e); color: #fff; border-radius: 13px; padding: 14px 16px; margin-bottom: 16px; display: flex; align-items: center; gap: 12px; box-shadow: var(--shadow); }
+  .install-banner-text { flex: 1; font-size: 13px; line-height: 1.4; }
+  .install-banner-title { font-weight: 800; font-size: 14px; margin-bottom: 2px; }
+  .install-btn-small { background: #fff; color: var(--blue); border: none; border-radius: 8px; padding: 7px 13px; font-size: 12px; font-weight: 800; cursor: pointer; font-family: 'Tajawal', sans-serif; flex-shrink: 0; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-top">
+    <span class="logo">💰</span>
+    <h1 class="app-title">Xisaab</h1>
+    <span class="app-sub">Maamul Lacagta</span>
+  </div>
+  <div class="balance-card">
+    <div class="bal-label">Balanaska Guud</div>
+    <div class="bal-amount" id="balAmount">$0</div>
+    <div class="bal-row">
+      <div class="bal-sub"><span style="color:#2ecc71">▲</span> <span id="totalDakhli">$0</span></div>
+      <div class="bal-sub"><span style="color:#e74c3c">▼</span> <span id="totalKharash">$0</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tab-bar">
+  <button class="tab active" onclick="showTab('guriga')">🏠 Guriga</button>
+  <button class="tab" onclick="showTab('dakhli')">📥 Dakhli</button>
+  <button class="tab" onclick="showTab('kharash')">📤 Kharash</button>
+  <button class="tab" onclick="showTab('dadka')">👥 Dadka</button>
+  <button class="tab" onclick="showTab('warbixin')">📊 Warbixin</button>
+</div>
+
+<!-- CONTENT -->
+<div class="content">
+
+  <!-- GURIGA -->
+  <div class="page active" id="page-guriga">
+    <div id="installBanner"></div>
+    <div class="card-grid">
+      <div class="stat-card" style="border-top-color:#2ecc71" onclick="showTab('dakhli')">
+        <div class="stat-icon">📥</div>
+        <div class="stat-label">Dakhliga</div>
+        <div class="stat-value" style="color:#2ecc71" id="sd1">$0</div>
+      </div>
+      <div class="stat-card" style="border-top-color:#e74c3c" onclick="showTab('kharash')">
+        <div class="stat-icon">📤</div>
+        <div class="stat-label">Kharashaadka</div>
+        <div class="stat-value" style="color:#e74c3c" id="sd2">$0</div>
+      </div>
+      <div class="stat-card" style="border-top-color:#3498db" onclick="showTab('dadka')">
+        <div class="stat-icon">✅</div>
+        <div class="stat-label">Bixiyey</div>
+        <div class="stat-value" style="color:#3498db" id="sd3">0 qof</div>
+      </div>
+      <div class="stat-card" style="border-top-color:#f39c12" onclick="showTab('dadka')">
+        <div class="stat-icon">⏳</div>
+        <div class="stat-label">Aan Bixin</div>
+        <div class="stat-value" style="color:#f39c12" id="sd4">0 qof</div>
+      </div>
+    </div>
+    <div class="section-title">Dhaqdhaqaaqa Ugu Dambeeyay</div>
+    <div id="recentList"></div>
+  </div>
+
+  <!-- DAKHLI -->
+  <div class="page" id="page-dakhli">
+    <button class="add-btn" onclick="openModal('dakhli')">+ Dakhli Cusub Ku Dar</button>
+    <div class="total-badge green" id="dakhliTotal">Wadarta: $0</div>
+    <div id="dakhliList"></div>
+  </div>
+
+  <!-- KHARASH -->
+  <div class="page" id="page-kharash">
+    <button class="add-btn red" onclick="openModal('kharash')">+ Kharash Cusub Ku Dar</button>
+    <div class="total-badge red" id="kharashTotal">Wadarta: $0</div>
+    <div id="kharashList"></div>
+  </div>
+
+  <!-- DADKA -->
+  <div class="page" id="page-dadka">
+    <button class="add-btn purple" onclick="openModal('qof')">+ Qof Cusub Ku Dar</button>
+    <div class="dad-stats">
+      <div class="dad-stat"><span style="color:#2ecc71">✅ Bixiyey:</span> <span id="dadBixiyey">0 qof · $0</span></div>
+      <div class="dad-stat"><span style="color:#e74c3c">⏳ Aan Bixin:</span> <span id="dadAnBixin">0 qof · $0</span></div>
+    </div>
+    <div id="dadList"></div>
+  </div>
+
+  <!-- WARBIXIN -->
+  <div class="page" id="page-warbixin">
+    <div class="section-title">Xisaabta Guud</div>
+    <div class="report-card">
+      <div class="report-row"><span>Dakhliga Guud</span><span style="color:#2ecc71;font-weight:800" id="rDakhli">$0</span></div>
+      <div class="report-row"><span>Kharashaadka Guud</span><span style="color:#e74c3c;font-weight:800" id="rKharash">$0</span></div>
+      <div class="divider"></div>
+      <div class="report-row bold"><span>Balanaska</span><span id="rBalance">$0</span></div>
+    </div>
+    <div class="section-title">Dadka Lacagta</div>
+    <div class="report-card">
+      <div class="report-row"><span>Wadarta Qofsiga</span><span id="rQof" style="font-weight:700">0</span></div>
+      <div class="report-row"><span>Bixiyey</span><span style="color:#2ecc71;font-weight:800" id="rBixiyey">0 · $0</span></div>
+      <div class="report-row"><span>Aan Bixin</span><span style="color:#e74c3c;font-weight:800" id="rAnBixin">0 · $0</span></div>
+    </div>
+    <div class="section-title">Tirada Diiwaanada</div>
+    <div class="report-card">
+      <div class="report-row"><span>Dakhli Diiwaanada</span><span id="rDakhliCount" style="font-weight:700">0</span></div>
+      <div class="report-row"><span>Kharash Diiwaanada</span><span id="rKharashCount" style="font-weight:700">0</span></div>
+    </div>
+    <button class="add-btn" style="background:#e74c3c;margin-top:8px" onclick="clearAll()">🗑️ Xog Dhammaan Tirtir</button>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="overlay" id="modal" onclick="closeModalOutside(event)">
+  <div class="modal-box">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="modalTitle">Ku Dar</div>
+    <div id="modalFields"></div>
+    <div class="modal-btns">
+      <button class="cancel-btn" onclick="closeModal()">Ka Noqo</button>
+      <button class="save-btn" id="saveBtn" onclick="saveRecord()">Kaydi</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+const KEY = 'xisaab_v1';
+let db = load();
+let currentModal = null;
+
+function load() {
+  try { return JSON.parse(localStorage.getItem(KEY)) || {d:[],k:[],q:[]}; }
+  catch { return {d:[],k:[],q:[]}; }
+}
+function save() { localStorage.setItem(KEY, JSON.stringify(db)); }
+function fmt(n) { return '$' + Number(n).toLocaleString(); }
+function today() { return new Date().toLocaleDateString('so-SO'); }
+function uid() { return Date.now() + Math.random().toString(36).slice(2,6); }
+
+// ---- TABS ----
+let activeTab = 'guriga';
+function showTab(name) {
+  activeTab = name;
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  const tabs = ['guriga','dakhli','kharash','dadka','warbixin'];
+  document.querySelectorAll('.tab')[tabs.indexOf(name)].classList.add('active');
+  renderAll();
+}
+
+// ---- MODAL ----
+function openModal(type) {
+  currentModal = type;
+  const m = document.getElementById('modal');
+  const title = document.getElementById('modalTitle');
+  const fields = document.getElementById('modalFields');
+  const btn = document.getElementById('saveBtn');
+
+  if (type === 'dakhli') {
+    title.textContent = '📥 Dakhli Ku Dar';
+    btn.className = 'save-btn';
+    fields.innerHTML = `
+      <input class="input" id="f_sharax" placeholder="Sharaxaad (tusaale: Mushaharo)" />
+      <input class="input" id="f_lacag" type="number" placeholder="Lacagta ($)" />
+    `;
+  } else if (type === 'kharash') {
+    title.textContent = '📤 Kharash Ku Dar';
+    btn.className = 'save-btn red';
+    fields.innerHTML = `
+      <input class="input" id="f_sharax" placeholder="Sharaxaad (tusaale: Kirada)" />
+      <input class="input" id="f_lacag" type="number" placeholder="Lacagta ($)" />
+    `;
+  } else {
+    title.textContent = '👤 Qof Ku Dar';
+    btn.className = 'save-btn purple';
+    fields.innerHTML = `
+      <input class="input" id="f_magac" placeholder="Magaca qofka" />
+      <input class="input" id="f_sharax" placeholder="Sababta lacagta (ikhtiyaari)" />
+      <input class="input" id="f_lacag" type="number" placeholder="Lacagta ($)" />
+    `;
+  }
+  m.classList.add('show');
+  setTimeout(() => document.querySelector('#modalFields .input').focus(), 350);
+}
+function closeModal() { document.getElementById('modal').classList.remove('show'); currentModal = null; }
+function closeModalOutside(e) { if (e.target.id === 'modal') closeModal(); }
+
+function saveRecord() {
+  const sharax = (document.getElementById('f_sharax') || {}).value?.trim();
+  const lacag = parseFloat((document.getElementById('f_lacag') || {}).value);
+  const magac = (document.getElementById('f_magac') || {}).value?.trim();
+
+  if (currentModal === 'dakhli') {
+    if (!sharax || !lacag) return shake();
+    db.d.unshift({ id: uid(), sharax, lacag, taarikh: today() });
+    showToast('✅ Dakhli la daray!', '#2ecc71');
+  } else if (currentModal === 'kharash') {
+    if (!sharax || !lacag) return shake();
+    db.k.unshift({ id: uid(), sharax, lacag, taarikh: today() });
+    showToast('✅ Kharash la daray!', '#e74c3c');
+  } else {
+    if (!magac || !lacag) return shake();
+    db.q.unshift({ id: uid(), magac, sharax: sharax || '', lacag, bixiyey: false, taarikh: today() });
+    showToast('✅ Qof la daray!', '#8e44ad');
+  }
+  save(); closeModal(); renderAll();
+}
+
+function shake() {
+  const box = document.querySelector('.modal-box');
+  box.style.animation = 'none';
+  box.offsetHeight;
+  box.style.animation = 'shake 0.3s';
+}
+
+function deleteRec(type, id) {
+  if (type === 'd') db.d = db.d.filter(r => r.id !== id);
+  else if (type === 'k') db.k = db.k.filter(r => r.id !== id);
+  else db.q = db.q.filter(r => r.id !== id);
+  save(); renderAll();
+  showToast('🗑️ La tirtiray', '#e67e22');
+}
+
+function toggleBixiyey(id) {
+  const q = db.q.find(r => r.id === id);
+  if (q) { q.bixiyey = !q.bixiyey; save(); renderAll(); }
+}
+
+function clearAll() {
+  if (!confirm('Xogta oo dhan ma tirtirtaa? Tani way suurtogal ahayn tahay in la soo celiso.')) return;
+  db = {d:[],k:[],q:[]}; save(); renderAll();
+  showToast('🗑️ Xog dhammaan la tirtiray', '#e74c3c');
+}
+
+// ---- RENDER ----
+function renderAll() {
+  const totD = db.d.reduce((s,r) => s+r.lacag, 0);
+  const totK = db.k.reduce((s,r) => s+r.lacag, 0);
+  const bal = totD - totK;
+  const bixiyey = db.q.filter(q => q.bixiyey);
+  const anBixin = db.q.filter(q => !q.bixiyey);
+  const totB = bixiyey.reduce((s,r) => s+r.lacag, 0);
+  const totA = anBixin.reduce((s,r) => s+r.lacag, 0);
+
+  // Header
+  const ba = document.getElementById('balAmount');
+  ba.textContent = fmt(bal);
+  ba.style.color = bal >= 0 ? '#2ecc71' : '#e74c3c';
+  document.getElementById('totalDakhli').textContent = fmt(totD);
+  document.getElementById('totalKharash').textContent = fmt(totK);
+
+  // Guriga stats
+  document.getElementById('sd1').textContent = fmt(totD);
+  document.getElementById('sd2').textContent = fmt(totK);
+  document.getElementById('sd3').textContent = bixiyey.length + ' qof';
+  document.getElementById('sd4').textContent = anBixin.length + ' qof';
+
+  // Recent
+  const recent = [
+    ...db.d.slice(0,4).map(r => ({...r, nooc:'d'})),
+    ...db.k.slice(0,4).map(r => ({...r, nooc:'k'}))
+  ].sort((a,b) => String(b.id).localeCompare(String(a.id))).slice(0,6);
+  const rl = document.getElementById('recentList');
+  if (recent.length === 0) {
+    rl.innerHTML = '<div class="empty"><div class="empty-icon">📋</div>Wali wax dhaqdhaqaaq ah ma jiraan</div>';
+  } else {
+    rl.innerHTML = recent.map(r => `
+      <div class="list-item">
+        <span class="list-icon">${r.nooc==='d'?'📥':'📤'}</span>
+        <div class="list-info">
+          <div class="list-title">${esc(r.sharax)}</div>
+          <div class="list-date">${r.taarikh}</div>
+        </div>
+        <div class="list-amount" style="color:${r.nooc==='d'?'#2ecc71':'#e74c3c'}">${r.nooc==='d'?'+':'-'}${fmt(r.lacag)}</div>
+      </div>`).join('');
+  }
+
+  // Dakhli
+  document.getElementById('dakhliTotal').textContent = 'Wadarta: ' + fmt(totD);
+  const dl = document.getElementById('dakhliList');
+  dl.innerHTML = db.d.length === 0
+    ? '<div class="empty"><div class="empty-icon">📥</div>Wali dakhli la ma gelin</div>'
+    : db.d.map(r => `
+      <div class="list-item" style="border-left-color:#2ecc71">
+        <span class="list-icon">📥</span>
+        <div class="list-info">
+          <div class="list-title">${esc(r.sharax)}</div>
+          <div class="list-date">${r.taarikh}</div>
+        </div>
+        <div class="list-amount" style="color:#2ecc71">+${fmt(r.lacag)}</div>
+        <button class="del-btn" onclick="deleteRec('d','${r.id}')">🗑️</button>
+      </div>`).join('');
+
+  // Kharash
+  document.getElementById('kharashTotal').textContent = 'Wadarta: ' + fmt(totK);
+  const kl = document.getElementById('kharashList');
+  kl.innerHTML = db.k.length === 0
+    ? '<div class="empty"><div class="empty-icon">📤</div>Wali kharash la ma gelin</div>'
+    : db.k.map(r => `
+      <div class="list-item" style="border-left-color:#e74c3c">
+        <span class="list-icon">📤</span>
+        <div class="list-info">
+          <div class="list-title">${esc(r.sharax)}</div>
+          <div class="list-date">${r.taarikh}</div>
+        </div>
+        <div class="list-amount" style="color:#e74c3c">-${fmt(r.lacag)}</div>
+        <button class="del-btn" onclick="deleteRec('k','${r.id}')">🗑️</button>
+      </div>`).join('');
+
+  // Dadka
+  document.getElementById('dadBixiyey').textContent = `${bixiyey.length} qof · ${fmt(totB)}`;
+  document.getElementById('dadAnBixin').textContent = `${anBixin.length} qof · ${fmt(totA)}`;
+  const qdl = document.getElementById('dadList');
+  qdl.innerHTML = db.q.length === 0
+    ? '<div class="empty"><div class="empty-icon">👥</div>Wali qof la ma gelin</div>'
+    : db.q.map(q => `
+      <div class="list-item" style="border-left-color:${q.bixiyey?'#2ecc71':'#e74c3c'}">
+        <span class="list-icon">👤</span>
+        <div class="list-info">
+          <div class="list-title">${esc(q.magac)}</div>
+          ${q.sharax ? `<div class="list-date">${esc(q.sharax)}</div>` : ''}
+          <div class="list-date">${q.taarikh}</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0">
+          <div class="list-amount" style="color:#3498db">${fmt(q.lacag)}</div>
+          <button class="status-btn" style="background:${q.bixiyey?'#2ecc71':'#e74c3c'}" onclick="toggleBixiyey('${q.id}')">
+            ${q.bixiyey?'✅ Bixiyey':'⏳ Aan Bixin'}
+          </button>
+        </div>
+        <button class="del-btn" onclick="deleteRec('q','${q.id}')">🗑️</button>
+      </div>`).join('');
+
+  // Warbixin
+  document.getElementById('rDakhli').textContent = fmt(totD);
+  document.getElementById('rKharash').textContent = fmt(totK);
+  const rb = document.getElementById('rBalance');
+  rb.textContent = fmt(bal);
+  rb.style.color = bal >= 0 ? '#2ecc71' : '#e74c3c';
+  document.getElementById('rQof').textContent = db.q.length;
+  document.getElementById('rBixiyey').textContent = `${bixiyey.length} · ${fmt(totB)}`;
+  document.getElementById('rAnBixin').textContent = `${anBixin.length} · ${fmt(totA)}`;
+  document.getElementById('rDakhliCount').textContent = db.d.length;
+  document.getElementById('rKharashCount').textContent = db.k.length;
+}
+
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ---- TOAST ----
+function showToast(msg, bg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.background = bg || '#2ecc71';
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ---- SHAKE ANIMATION ----
+const styleEl = document.createElement('style');
+styleEl.textContent = '@keyframes shake { 0%,100%{transform:translateY(0)} 25%{transform:translateY(-6px)} 75%{transform:translateY(4px)} }';
+document.head.appendChild(styleEl);
+
+// ---- INSTALL PWA ----
+let deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  document.getElementById('installBanner').innerHTML = `
+    <div class="install-banner">
+      <div style="font-size:28px">📱</div>
+      <div class="install-banner-text">
+        <div class="install-banner-title">App-ka Rakib Telefoonka!</div>
+        <div style="font-size:12px;opacity:0.8">Offline u shaqeeysa, bilaa internet</div>
+      </div>
+      <button class="install-btn-small" onclick="installApp()">Rakib</button>
+    </div>`;
+});
+
+async function installApp() {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  const result = await deferredPrompt.userChoice;
+  deferredPrompt = null;
+  document.getElementById('installBanner').innerHTML = '';
+  if (result.outcome === 'accepted') showToast('🎉 App la rakibay!', '#8e44ad');
+}
+
+// ENTER key support
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && currentModal) saveRecord();
+  if (e.key === 'Escape' && currentModal) closeModal();
+});
+
+renderAll();
+</script>
+</body>
+</html>
